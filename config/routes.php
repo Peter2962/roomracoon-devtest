@@ -22,6 +22,11 @@ return [
             "call" => "editView",
             "use" => []
         ],
+        "/list/assign/:itemId" => [
+            "in" => App\Controllers\ListController::class,
+            "call" => "assignView",
+            "use" => []
+        ],
     ],
     "POST" => [
         "/list/add" => [
@@ -42,6 +47,11 @@ return [
         "/list/update/:itemId" => [
             "in" => App\Controllers\ListController::class,
             "call" => "updateItem",
+            "use" => []
+        ],
+        "/list/assign/:itemId/:userId" => [
+            "in" => App\Controllers\ListController::class,
+            "call" => "assignItem",
             "use" => []
         ],
     ],

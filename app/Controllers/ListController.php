@@ -25,7 +25,15 @@ class ListController extends BaseController
     public function index(): void
     {
         $list = [];
-        $sql = "SELECT id, name, completed FROM items";
+        $sql = "
+            SELECT
+                items.id, items.name, completed, assignee, users.name as assigneeName
+            FROM
+                items
+            LEFT JOIN
+                users
+            ON
+                assignee = users.id";
         $records = DB::instance()->query($sql);
         $list = $records->fetchAll(PDO::FETCH_ASSOC);
 
@@ -148,6 +156,76 @@ class ListController extends BaseController
             redirect("/list");
         }catch(Exception $e) {
             exitApp(code: 500, message: "Failed to complete item");
+        }
+    }
+
+    /**
+     * Renders assign view.
+     * 
+     * @param array $routeParams Route parameters
+     * 
+     * @return void
+     */
+    public function assignView(array $routeParams = []): void
+    {
+        try {
+            $itemId = $routeParams[":itemId"];
+            $sql = "SELECT id, name FROM items WHERE id = $itemId";
+            $query = DB::instance()->query($sql);
+
+            $record = $query->fetch(PDO::FETCH_ASSOC);
+
+            if (!$record) {
+                exitApp(code: 404, message: "Record not found");
+            }
+
+            $users = "SELECT id, name FROM users";
+            $query = DB::instance()->query($users);
+            $users = $query->fetchAll(PDO::FETCH_ASSOC);
+
+            renderView("list.assign", "layout", [
+                "title" => "Roomracoon list - Assign",
+                "users" => $users,
+                "itemId" => $record['id'],
+            ]);
+        }catch(Exception $e) {
+            exitApp(code: 500, message: "Failed to fetch record");
+        }
+    }
+
+    /**
+     * Assigns an item to a user.
+     * 
+     * @param array $routeParams Route parameters
+     * 
+     * @return void
+     */
+    public function assignItem(array $routeParams = []): void
+    {
+        $itemId = $routeParams[":itemId"];
+        $userId = $routeParams[":userId"];
+        $itemSql = "SELECT id, name FROM items WHERE id = $itemId";
+        $query = DB::instance()->query($itemSql);
+
+        $record = $query->fetch(PDO::FETCH_ASSOC);
+
+        if (!$record) {
+            exitApp(code: 404, message: "Record not found");
+        }
+
+        $userSql = "SELECT id FROM users WHERE id = $userId";
+        $query = DB::instance()->query($userSql);
+
+        if (!$query->fetch(PDO::FETCH_ASSOC)) {
+            exitApp(code: 404, message: "User not found");
+        }
+
+        $sql = "UPDATE items SET assignee = '". $userId . "' WHERE id = " . $routeParams[":itemId"];
+        try {
+            DB::instance()->query($sql);
+            redirect("/list");
+        }catch(Exception $e) {
+            exitApp(code: 500, message: "Failed to assign item to user");
         }
     }
 

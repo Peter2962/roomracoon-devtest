@@ -10,6 +10,7 @@
                 <th class="text-left p-3 px-5"></th>
                 <th class="text-left p-3 px-5"></th>
                 <th class="text-left p-3 px-5"></th>
+                <th class="text-left p-3 px-5"></th>
             </tr>
         </thead>
         <tbody>
@@ -44,6 +45,16 @@
                             <? endif; ?>
                         </form>
                     </td>
+                    <td>
+                        <a href="/list/assign/<?= $item['id'] ?>" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
+                            Assign
+                        </a>
+                    </td>
+                    <?php if($item['assignee']): ?>
+                        <td>
+                            <p>Assigned to <?= $item['assigneeName']; ?></p>
+                        </td>
+                    <?php endif; ?>
                 </tr>
             <?php endforeach; ?>
         </tbody>
